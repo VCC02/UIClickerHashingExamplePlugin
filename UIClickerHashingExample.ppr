@@ -1,0 +1,151 @@
+{
+    Copyright (C) 2025 VCC
+    creation date: 13 Jan 2025
+    initial release date: 14 Jan 2025
+
+    author: VCC
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}
+
+
+library UIClickerHashingExample;
+
+{$mode objfpc}{$H+}
+
+uses
+  Windows,
+  Interfaces, Classes, SysUtils,// Graphics, HashingExampleDM, ImgList,
+  ClickerActionPlugins, ClickerUtils, DllUtils,
+  //HashingExamplePluginProperties,
+  DCPsha256
+  ;
+
+var
+  AddToLogCallback: TOnActionPlugin_AddToLog;
+
+
+procedure AddToLog(AMsg: string);  //thread safe
+begin
+  if @AddToLogCallback <> nil then
+    AddToLogCallback(DefaultPluginReference, @AMsg[1]);
+end;
+
+
+function GetAPIVersion: DWord; cdecl;
+begin
+  Result := CActionPlugin_APIVersion;
+end;
+
+
+procedure GetListOfProperties(APluginReference: Pointer;                 //UIClicker passes the plugin reference to the plugin, then the plugin calls some callbacks with that reference
+                              AListOfProperties: Pointer;
+                              AListOfPropertiesLen: PDWord;
+                              AOnActionPlugin_UpdatePropertyIcons: TOnActionPlugin_UpdatePropertyIcons); cdecl;
+//var
+//  Properties: string;
+//  i: Integer;
+//  TempMemStream: TMemoryStream;
+//  Bmp: TBitmap;
+begin
+  //Properties := FillInPropertyDetails;
+  //AListOfPropertiesLen^ := SetPointedContentFromString(Properties, AListOfProperties);
+  //
+  //dmProperties := TdmProperties.Create(nil);
+  //try
+  //  for i := 0 to CPropertiesCount - 1 do
+  //  begin
+  //    TempMemStream := TMemoryStream.Create;
+  //    Bmp := TBitmap.Create;
+  //    try
+  //      Bmp.PixelFormat := pf24bit;
+  //      Bmp.Width := dmProperties.imglstProperties.Width;
+  //      Bmp.Height := dmProperties.imglstProperties.Height;
+  //      Bmp.Canvas.Pen.Color := clWhite;
+  //      Bmp.Canvas.Brush.Color := clWhite;
+  //      Bmp.Canvas.Rectangle(0, 0, Bmp.Width, Bmp.Height);
+  //
+  //      dmProperties.imglstProperties.Draw(Bmp.Canvas, 0, 0, i, dsNormal, itImage);
+  //      Bmp.SaveToStream(TempMemStream);
+  //
+  //      AOnActionPlugin_UpdatePropertyIcons(APluginReference, TempMemStream.Memory, TempMemStream.Size);
+  //    finally
+  //      TempMemStream.Free;
+  //      Bmp.Free;
+  //    end;
+  //  end;
+  //finally
+  //  dmProperties.Free;
+  //end;
+end;
+
+
+function ExecutePlugin(APluginReference: Pointer;
+                       AListOfPluginSettings: Pointer;
+                       AListOfPluginSettingsLen: PDWord;
+
+                       AOnActionPlugin_GetActionCount: TOnActionPlugin_GetActionCount;
+                       AOnActionPlugin_GetActionInfoByIndex: TOnActionPlugin_GetActionInfoByIndex;
+                       AOnActionPlugin_GetActionContentByIndex: TOnActionPlugin_GetActionContentByIndex;
+                       AOnActionPlugin_ExecuteAction: TOnActionPlugin_ExecuteAction;
+                       AOnActionPlugin_GetAllTemplateVars: TOnActionPlugin_GetAllTemplateVars;
+                       AOnActionPlugin_SetTemplateVar: TOnActionPlugin_SetTemplateVar;
+                       AOnActionPlugin_DebugPoint: TOnActionPlugin_DebugPoint;
+                       AOnActionPlugin_AddToLog: TOnActionPlugin_AddToLog;
+                       AOnActionPlugin_SetResultImg: TOnActionPlugin_SetResultImg;
+                       AOnActionPlugin_LoadBitmap: TOnActionPlugin_LoadBitmap;
+                       AOnActionPlugin_GetAllowedFilesInfo: TOnActionPlugin_GetAllowedFilesInfo;
+                       AOnActionPlugin_SetBitmap: TOnActionPlugin_SetBitmap;
+                       AOnActionPlugin_Screenshot: TOnActionPlugin_Screenshot;
+                       AOnActionPlugin_CheckStopAllActionsOnDemand: TOnActionPlugin_CheckStopAllActionsOnDemand
+                       ): Boolean; cdecl;
+begin
+  Result := True;
+end;
+
+
+function ProcessMemoryContent(AInData: Pointer; AInDataLen: Int64; AOnFileContent: TOnFileContentObj): Integer; cdecl;
+var
+  SHA256: TDCP_sha256;
+  Hash: array[0..31] of Byte;
+begin
+  Result := 32;  //32 bytes
+
+  SHA256 := TDCP_sha256.Create(nil);
+  try
+    SHA256.Init;
+    try
+      SHA256.Update(AInData^, AInDataLen);
+      SHA256.Final(Hash);
+      AOnFileContent(@Hash[0], Length(Hash));
+    finally
+      SHA256.Burn;
+    end;
+  finally
+    SHA256.Free;
+  end;
+end;
+
+
+exports
+  GetAPIVersion,
+  GetListOfProperties,
+  ExecutePlugin,
+  ProcessMemoryContent;
+
+begin
+end.
+
