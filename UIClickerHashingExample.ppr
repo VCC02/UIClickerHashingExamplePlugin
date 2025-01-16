@@ -140,11 +140,21 @@ begin
 end;
 
 
+function ConfigurePluginForMemoryContent(AOnActionPlugin_InMemFS: TOnActionPlugin_InMemFS_Obj): Boolean; cdecl;
+//var
+//  PluginInMemFS: TPluginInMemFileSystem;
+begin
+  Result := True;
+  //read configuration (if required) from plugin in-mem FS, using PluginInMemFS var
+end;
+
+
 exports
   GetAPIVersion,
   GetListOfProperties,
   ExecutePlugin,
-  ProcessMemoryContent;
+  ProcessMemoryContent,
+  ConfigurePluginForMemoryContent;
 
 begin
 end.
