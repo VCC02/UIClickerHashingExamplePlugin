@@ -110,7 +110,8 @@ function ExecutePlugin(APluginReference: Pointer;
                        AOnActionPlugin_GetAllowedFilesInfo: TOnActionPlugin_GetAllowedFilesInfo;
                        AOnActionPlugin_SetBitmap: TOnActionPlugin_SetBitmap;
                        AOnActionPlugin_Screenshot: TOnActionPlugin_Screenshot;
-                       AOnActionPlugin_CheckStopAllActionsOnDemand: TOnActionPlugin_CheckStopAllActionsOnDemand
+                       AOnActionPlugin_CheckStopAllActionsOnDemand: TOnActionPlugin_CheckStopAllActionsOnDemand;
+                       AOnActionPlugin_InMemFS: TOnActionPlugin_InMemFS
                        ): Boolean; cdecl;
 begin
   Result := True;
@@ -140,7 +141,10 @@ begin
 end;
 
 
-function ConfigurePluginForMemoryContent(AOnActionPlugin_InMemFS: TOnActionPlugin_InMemFS_Obj): Boolean; cdecl;
+function ConfigurePluginForMemoryContent(AOnActionPlugin_InMemFS: TOnActionPlugin_InMemFS_Obj;
+                                         AOnActionPlugin_SetTemplateVar: TOnActionPlugin_SetTemplateVar_Obj;
+                                         AOnActionPlugin_AddToLog: TOnActionPlugin_AddToLog_Obj
+                                         ): Boolean; cdecl;
 //var
 //  PluginInMemFS: TPluginInMemFileSystem;
 begin
